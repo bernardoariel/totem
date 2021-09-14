@@ -50,32 +50,26 @@
 
     <script>
         var socket = io();
-        
+        //el cliente se conecta al servidor
         socket.on('connect', function(){
-            console.log('Server Connected ',socket.id)
+            console.log('Server Connected /server',socket.id)
         });
-
+        //el cliente se desconecta del servidor
         socket.on('disconnect', function(){
             console.log('Disconnected from the server', socket.id)
         });
-
-        socket.on('sos:message-new-cliente', function(data){
-            console.log(data)
-        });
-        
-        
         socket.on('sos:server', function(data){
             //muestro la data enviada
-            console.log(data) 
-            const {name,message} = data;
-            //elimino la clase verde si existe
-            if(document.getElementById("normal")){
-
-                document.getElementById("normal").remove();
-                document.body.style.backgroundColor = "#5cb85c";
-            } 
-            
-            if(!document.getElementById("warning-state")){
+            if(data.id!=socket.id){
+              const {name,message} = data;
+              
+              //elimino la clase verde si existe
+              if(document.getElementById("normal")){
+                  document.getElementById("normal").remove();
+                  document.body.style.backgroundColor = "#5cb85c";
+              } 
+              
+              if(!document.getElementById("warning-state")){
                 
                 document.body.style.backgroundColor = '#dc3545';
                 let  div = document.createElement('div')
@@ -83,19 +77,19 @@
                 div.id = 'warning-state'
                 document.body.appendChild(div)
                 videos = `
-                <div class="card" id="${socket.id}">
-            <video preload="" playsinline="" autoplay="" muted="" loop="">
-                <source src="/video/" type="video/mp4">
-            </video>
-            <div class="card-body">
-              <h5 class="card-title">${name}</h5>
-              <p class="card-text">${message}</p>
-              <a href="#" class="btn btn-primary">Resolver</a>
-            </div>
-        </div>`
-            div.innerHTML = videos
+                  <div class="card" id="${socket.id}">
+                    <video preload="" playsinline="" autoplay="" muted="" loop="">
+                        <source src="/video/" type="video/mp4">
+                    </video>
+                    <div class="card-body">
+                      <h5 class="card-title">${name}</h5>
+                      <p class="card-text">${message}</p>
+                      <a href="#" class="btn btn-primary">Resolver</a>
+                    </div>
+                  </div>`
+                div.innerHTML = videos
 
-            }else{
+              }else{
 
                 videosWarning = document.getElementById("warning-state")
                 let app = document.createElement("div"); // <div></div>
@@ -103,23 +97,25 @@
                 videosWarning.appendChild(app);
 
                 videos = `
-                <div class="card" id="${socket.id}">
-            <video preload="" playsinline="" autoplay="" muted="" loop="">
-                <source src="/video/" type="video/mp4">
-            </video>
-            <div class="card-body">
-              <h5 class="card-title">${name}</h5>
-              <p class="card-text">${message}</p>
-              <a href="#" class="btn btn-primary">Resolver</a>
-            </div>
-        </div>`
-             app.innerHTML = videos
-            }
-            
+                  <div class="card" id="${socket.id}">
+                    <video preload="" playsinline="" autoplay="" muted="" loop="">
+                        <source src="/video/" type="video/mp4">
+                    </video>
+                  <div class="card-body">
+                    <h5 class="card-title">${name}</h5>
+                    <p class="card-text">${message}</p>
+                    <a href="#" class="btn btn-primary">Resolver</a>
+                  </div>
+                </div>`
+                
+                app.innerHTML = videos
+              }
 
+            }
            
-            
         })
+            
+        
 
     </script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
