@@ -21,7 +21,7 @@
         
         socket.on('connect', function(){
             console.log('Connected to the server :: myid=1>',socket.id)
-            socket.emit('sos:server',{id:socket.id})
+            // socket.emit('sos:server',{id:socket.id})
         });
 
         socket.on('disconnect', function(){
@@ -29,10 +29,12 @@
         });
 
         btn.addEventListener('click', ()=>{
+            console.log(messageText.value)
             payload = {
                 name:'comisaria',
                 message:messageText.value
             }
+
             
            socket.emit('message-from-client',payload)
         })

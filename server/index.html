@@ -58,10 +58,16 @@
         socket.on('disconnect', function(){
             console.log('Disconnected from the server', socket.id)
         });
+        //cuando el cliente envia un dato
+        socket.on('message-from-client', function(payload){
+          console.log(payload);
+        });
         socket.on('sos:server', function(data){
+          
             //muestro la data enviada
             if(data.id!=socket.id){
-              const {name,message} = data;
+
+              const {id,name,message} = data;
               
               //elimino la clase verde si existe
               if(document.getElementById("normal")){
@@ -88,7 +94,7 @@
                     </div>
                   </div>`
                 div.innerHTML = videos
-
+                 
               }else{
 
                 videosWarning = document.getElementById("warning-state")
