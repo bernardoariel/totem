@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket Server</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<style>
+  *{
+ margin: 0px;
+ padding:0px;
+ box-sizing: border-box;
+
+}
+body {
+
+ /* color: #5cb85c; */
+ background:rgb(222, 230, 231);
+}
+
+.normal-state{
+ height: 100vh;
+ /* background: #5cb85c; */
+
+
+}
+
+.alert-state {
+ /* height: 100vh;  */
+ /* display: flex;
+ flex-direction: row; */
+ /* background-color: #dc3545; */
+ /* flex-wrap: wrap; */
+align-items: center;
+}
+
+.alert-state div{  
+ /* border: black 1px solid; */
+ margin: 5px;
+
+}
+</style>
+<body>
+    
+    <div id="normal" class="normal-state"></div>
+
+    <script src="../socket.io/socket.io.js"></script>
+
+    <script>
+        var socket = io();
+        //el cliente se conecta al servidor
+        socket.on('connect', function(){
+            console.log('Server Connected /server',socket.id)
+        });
+        //el cliente se desconecta del servidor
+        socket.on('disconnect', function(){
+            console.log('Disconnected from the server', socket.id)
+        });
+        //cuando el cliente envia un dato
+        socket.on('message-from-client', function(payload){
+          console.log(payload);
+        });
+        socket.on('sos:server', function(data){
+          
+          
+          if(data.id!=socket.id){//aca revisamos que no sea //server
+
+            const {id,name,message} = data;
+            
+            //elimino la clase verde si existe
+            if(document.getElementById("normal")){
+                document.getElementById("normal").remove();
+                document.body.style.backgroundColor = "#5cb85c";
+            } 
+          
+            if(!document.getElementById("warning-state")){
+              
+              document.body.style.backgroundColor = '#f0f4f5';
+              let  div = document.createElement('div')
+              div.className ='justify-content-center';
+              div.id = 'warning-state'
+              document.body.appendChild(div)
+              videos = `
+              <div class="container">
+                <div class="row" id="videos_colums">
+              
+                    <div class="col-xl-8 justify-content-center" id="firt_video" >  
+                    
+                        <div class="card" id="${name}">
+                            <video preload="" playsinline="" autoplay="" muted="" loop="">
+                                <source src="./../sos1.mp4" type="video/mp4">
+                            </video>
+                            
+                            <div class="card-body">
+                              <h5 class="card-title">${name}</h5>
+                              <p class="card-text">${message}</p>
+                            
+                              <div class="text-right">
+                                  <button type="button" class="btn btn-primary" onclick="solved('${name}')">Resolver</button>
+                              </div>
+
+                            </div>
+                    
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+              `
+              div.innerHTML = videos
+               
+            }else{
+              
+              if(!document.getElementById(`${name}`)){
+                document.getElementById("firt_video").classList.remove('col-xl-8');
+                document.getElementById("firt_video").classList.add('col-sm-6');
+
+                videosWarning = document.getElementById("videos_colums")
+                let app = document.createElement("div"); // <div></div>
+                app.className = "col-sm-6";
+
+                videos = `                  
+                  <div class="card" id="${name}">
+                    <video preload="" playsinline="" autoplay="" muted="" loop="">
+                        <source src="./../sos1.mp4" type="video/mp4">
+                    </video>
+                  <div class="card-body">
+                    <h5 class="card-title">${name}</h5>
+                    <p class="card-text">${message}</p>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-primary" onclick="solved('${name}')">Resolver</button>
+                    </div>
+                  
+                  </div>
+                  </div>
+                `
+                app.innerHTML = videos;
+                videosWarning.appendChild(app);
+              }
+              
+            }
+
+          }
+         
+      })
+      function solved(totem_name){
+        socket.emit('solved', totem_name);
+      }
+    </script>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+      
+</body>
+</html>
