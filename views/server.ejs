@@ -59,8 +59,11 @@ align-items: center;
             console.log('Disconnected from the server', socket.id)
         });
         //cuando el cliente envia un dato
-        socket.on('message-from-client', function(payload){
-          console.log(payload);
+        // socket.on('message-from-client', function(payload){
+        //   console.log(payload);
+        // });
+        socket.on('response:activity', function(datos){
+            console.log('response:activity',datos)
         });
         socket.on('sos:server', function(data){
           
@@ -101,7 +104,7 @@ align-items: center;
                                   <button type="button" class="btn btn-primary" onclick="solved('${name}')">Resolver</button>
                               </div>
 
-                            </div>
+                            // </div>
                     
                         </div>
                     </div>
@@ -146,8 +149,14 @@ align-items: center;
          
       })
       function solved(totem_name){
-        socket.emit('solved', totem_name);
+        
+         socket.emit('solved',totem_name);
+         setInterval(() => {
+           
+           document.getElementById(totem_name).remove()
+         }, 2000);
       }
+      
     </script>
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

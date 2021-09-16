@@ -28,27 +28,48 @@
         let reqUrl = document.getElementById('totem')
         var socket = io();
         
+        //cuando se conecta
         socket.on('connect', function(){
             console.log('Connected to the server :: myid=1>',socket.id)
-            socket.emit('totem_register', reqUrl.textContent)
-        });
-
-
-
-        socket.on('disconnect', function(){
-            console.log('Disconnected from the server ', socket.id)
-        });
-
-        socket.on('solved', function(){
-            alert("resuelto");
-        });
-
-        socket.on('register_ok', function(){
+            let regex = /(\d+)/g;
+            idarrayTotem=(reqUrl.textContent.match(regex)[0])-1
+            //envia el nombre del totem al servidor
             datos = {
-                id:1,
+                id:idarrayTotem,
+                socket_id:socket.id,
                 name:reqUrl.textContent,//pasar un alias
                 message:'Se inicio apertura de camara.'
             }
+            // console.log(reqUrl.textContent.match(regex)[0])
+            socket.emit('totem_register', datos)
+        });
+        //cuando se desconecta
+        socket.on('disconnected', function(){
+            console.log('Disconnected from the server ', socket.id)
+           
+        });
+
+        socket.on('solved2', function(totem_name){
+            if(reqUrl.textContent==totem_name){
+
+                alert("resuelto");
+            }
+        });
+        socket.on('connected', function(){
+            // console.log('recibe el totem ',reqUrl.textContent);
+            socket.emit('totem:response',reqUrl.textContent)
+            // alert('a')
+        });
+
+        socket.on('register_ok', function(){
+            let regex = /(\d+)/g;
+
+            datos = {
+                id:reqUrl.textContent.match(regex),
+                name:reqUrl.textContent,//pasar un alias
+                message:'Se inicio apertura de camara.'
+            }
+            console.log(datos)
             //cuando se conecta un totem -> emite a view/server.ejs
             socket.emit('sos:server',datos)
             messageText.focus()
@@ -65,12 +86,7 @@
             socket.emit('message-from-client',payload)
         })
         
-        window.addEventListener("load", function(e) {
-            
-            
-            
-        })
-        
+     
 
         
     </script>
