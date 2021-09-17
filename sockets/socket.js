@@ -7,12 +7,14 @@ var totems = [
         "id":1,
         "socket_id":'',
         "name":'',
+        "stream":false,
         "state":false
     },
     {
         "id":2,
         "socket_id":'',
         "name":'',
+        "stream":false,
         "state":false
     }
 ]
@@ -28,6 +30,7 @@ io.on('connection', (client) => {
         bsq_totem = totems.find( totem => totem.socket_id === client.id )
         if(bsq_totem)   {
             bsq_totem.socket_id='';
+            bsq_totem.stream=false;
             bsq_totem.state=false;
             console.log('--------- desconectado -----',client.id)
             console.log(totems)
@@ -52,9 +55,20 @@ io.on('connection', (client) => {
 
     client.on('solved', (totem_name)=>{
         io.emit('solved2',totem_name)
+        bsq_totem = totems.find( totem => totem.name === totem_name )
+        if(bsq_totem){
+           
+            bsq_totem.stream=false;
+           
+        }
         
     })
+    //creoo una funcion para recorrer los array conectados
     
+    client.on('totem_conectados', ()=>{
+        console.log('totem_conectados');
+        io.emit('totem_conectados',totems)
+    })
     client.on('totem:response', (data)=>{
         console.log("activo",data);
         // tomo el valor del totem name y le asigno el id de cliente
@@ -64,19 +78,19 @@ io.on('connection', (client) => {
         // console.log(totems);
     })
 
-    // setInterval(() => {
+    setInterval(() => {
       
 
-    //         for (const clave in totems) {
-    //             console.log('---------inicia----------------')
+            for (const clave in totems) {
+                console.log('---------inicia----------------')
                 
-    //             console.log("clave->",totems[clave])
-    //             console.log("---------------------------------");
-    //             // console.log(io.to(totems[clave]).emit('connected'))
-    //             io.emit('response:activity',totems[clave]);
-    //         }
+                console.log("clave->",totems[clave])
+                console.log("---------------------------------");
+                // console.log(io.to(totems[clave]).emit('connected'))
+                io.emit('response:activity',totems[clave]);
+            }
 
       
-    // }, 10000);
+    }, 1000);
 
 });
