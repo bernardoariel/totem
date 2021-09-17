@@ -6,50 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Socket Server</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="./../style.css">   
 </head>
-<style>
-  *{
- margin: 0px;
- padding:0px;
- box-sizing: border-box;
 
-}
-body {
-
- /* color: #5cb85c; */
- background:rgb(222, 230, 231);
-}
-
-.normal-state{
- height: 100vh;
- /* background: #5cb85c; */
-
-
-}
-
-.alert-state {
- /* height: 100vh;  */
- /* display: flex;
- flex-direction: row; */
- /* background-color: #dc3545; */
- /* flex-wrap: wrap; */
-align-items: center;
-}
-
-.alert-state div{  
- /* border: black 1px solid; */
- margin: 5px;
-
-}
-</style>
-<body>
+<body onload="startTime()">
     
-    <div id="normal" class="normal-state"></div>
+  <div class="contenedor">
+
+    <div id="top"><img src="./../lineatop.png" alt=""></div>
+
+    <header>
+        
+  <div class="logo ">
+    <img src="./../logo.png" alt="">
+  </div>
+
+  <nav>
+            <span id="reloj"></span>
+    
+  </nav>
+
+</header>
+
+<section class="main" id="main">
+      <div id="normal" class="normal-state"></div>
+        
+
+
+</section>
+
+<aside>
+  <div class="widget" id="alert_totem1">
+    <div class="imagen"><span ><i class="far fa-check-square"></i>TOTEM 1</span></div>
+  </div>
+
+  <div class="widget" id="alert_totem2">
+    <div class="imagen"><span ><i class="fas fa-exclamation-triangle"></i>TOTEM 2</span></div>
+  </div>
+  <div class="widget" id="alert_totem3">
+    <div class="imagen"><span ><i class="far fa-check-square"></i><span>TOTEM 3</span></div>
+  </div>
+</aside>
+
+<footer>
+  <section class="links">
+    <a href="#">TOTEM 1</a>
+    <a href="#">TOTEM 2</a>
+    <a href="#">TOTEM 3</a>
+    <a href="#">TOTEM 4</a>
+  </section>
+
+  
+</footer>
+    <!-- <audio src="sirena.mp3" autoplay></audio> -->
+</div>
+   
 
     <script src="../socket.io/socket.io.js"></script>
 
     <script>
         var socket = io();
+        const main_div = document.getElementById('main')
         //el cliente se conecta al servidor
         socket.on('connect', function(){
 
@@ -70,13 +91,50 @@ align-items: center;
         //   console.log(payload);
         // });
         socket.on('response:activity', function(datos){
-            console.log('response:activity',datos)
+           console.log("NUEVO",datos)
+
+            //recorro el array datos
+            //bsq_totem = datos.find( totem => totem.name == 'totem1' )
+            
+            
+            for (let i = 1; i <= 2 ; i++) {
+                
+              totem_id =`alert_totem${i}` 
+              
+                
+
+              // eliminamos la clases//
+             
+              if(datos.id == i)   {
+                document.getElementById(totem_id).className ='';
+                document.getElementById(totem_id).classList.add('widget');
+                if(datos.state==true){//si esta conectado
+                  
+                  document.getElementById(totem_id).classList.add('alert_success_totem');
+              
+                }else{
+                
+               
+                  document.getElementById(totem_id).classList.add('alert_warning_totem');
+               
+
+                }
+              
+            }
+              
+            }
+            
+           
+       
         });
         socket.on('sos:server', function(data){
           
           
           if(data.id!=socket.id){//aca revisamos que no sea //server
 
+            var hoy = new Date()
+            var fecha = hoy.getDate() + '-' + (hoy.getMonth()+1) + '-'+hoy.getFullYear();
+            var hora =hoy.getHours()+':'+hoy.getMinutes()+':'+hoy.getSeconds();
             const {id,name,message} = data;
             
             //elimino la clase verde si existe
@@ -91,63 +149,49 @@ align-items: center;
               let  div = document.createElement('div')
               div.className ='justify-content-center';
               div.id = 'warning-state'
-              document.body.appendChild(div)
+              main_div.appendChild(div)
               videos = `
-              <div class="container">
-                <div class="row" id="videos_colums">
-              
-                    <div class="col-xl-8 justify-content-center" id="firt_video" >  
+              <div class='capa-video'>
+                
+                <div class="capa-video-footer" id="${name}">
+                    <span><strong>${name}</strong></span>
+                    <a href="#" onclick="solved('${name}')">Resolver</a>
                     
-                        <div class="card" id="${name}">
-                            <video preload="" playsinline="" autoplay="" muted="" loop="">
-                                <source src="./../sos1.mp4" type="video/mp4">
-                            </video>
-                            
-                            <div class="card-body">
-                              <h5 class="card-title">${name}</h5>
-                              <p class="card-text">${message}</p>
-                            
-                              <div class="text-right">
-                                  <button type="button" class="btn btn-primary" onclick="solved('${name}')">Resolver</button>
-                              </div>
+                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+                </div> 
 
-                            // </div>
-                    
-                        </div>
-                    </div>
+                <video preload="" playsinline="" autoplay="" muted="" loop="">
+                    <source src="./../sos1.mp4" type="video/mp4">
+                </video>
 
-                </div>
-                </div>
+            </div>
               `
               div.innerHTML = videos
                
             }else{
               
               if(!document.getElementById(`${name}`)){
-                document.getElementById("firt_video").classList.remove('col-xl-8');
-                document.getElementById("firt_video").classList.add('col-sm-6');
 
-                videosWarning = document.getElementById("videos_colums")
+                videosWarning = document.getElementById("warning-state")
                 let app = document.createElement("div"); // <div></div>
-                app.className = "col-sm-6";
-
+                videosWarning.appendChild(app);  
+                app.className='capa-video'
                 videos = `                  
-                  <div class="card" id="${name}">
-                    <video preload="" playsinline="" autoplay="" muted="" loop="">
-                        <source src="./../sos1.mp4" type="video/mp4">
-                    </video>
-                  <div class="card-body">
-                    <h5 class="card-title">${name}</h5>
-                    <p class="card-text">${message}</p>
-                    <div class="text-right">
-                        <button type="button" class="btn btn-primary" onclick="solved('${name}')">Resolver</button>
-                    </div>
-                  
-                  </div>
-                  </div>
+               <div class="capa-video-footer" id="${name}">
+                    <span><strong>${name}</strong></span>
+                    <a href="#" onclick="solved('${name}')">Resolver</a>
+                    
+                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+                </div> 
+
+                <video preload="" playsinline="" autoplay="" muted="" loop="">
+                    <source src="./../sos1.mp4" type="video/mp4">
+                </video>
+
+           
                 `
                 app.innerHTML = videos;
-                videosWarning.appendChild(app);
+                
               }
               
             }
@@ -158,16 +202,48 @@ align-items: center;
       function solved(totem_name){
         
          socket.emit('solved',totem_name);
-         setInterval(() => {
-           
-           document.getElementById(totem_name).remove()
-         }, 2000);
+         setTimeout(() => {
+          const totem = document.getElementById(totem_name)
+          totem.parentElement.remove();
+
+         }, 1000);
+        
       }
       
     </script>
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-      
+    <script>
+      function startTime() {
+         var today = new Date();
+         var hr = today.getHours();
+         var min = today.getMinutes();
+         var sec = today.getSeconds();
+         ap = (hr < 12) ? "<span>AM</span>" : "<span>PM</span>";
+         hr = (hr == 0) ? 12 : hr;
+         hr = (hr > 12) ? hr - 12 : hr;
+         //Add a zero in front of numbers<10
+         hr = checkTime(hr);
+         min = checkTime(min);
+         sec = checkTime(sec);
+         
+         var months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+         var days = ['Domingo', 'Lunes', 'Marzo', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+         var curWeekDay = days[today.getDay()];
+         var curDay = today.getDate();
+         var curMonth = months[today.getMonth()];
+         var curYear = today.getFullYear();
+         var date = curWeekDay+", "+curDay+" "+curMonth+" "+curYear;
+         // document.getElementById("date").innerHTML = date;
+         
+         document.getElementById("reloj").innerHTML = date + " " + hr + ":" + min + ":" + sec + " " + ap;
+         var time = setTimeout(function(){ startTime() }, 500);
+     }
+     function checkTime(i) {
+         if (i < 10) {
+             i = "0" + i;
+         }
+         return i;
+     }
+     </script>
+        
 </body>
 </html>

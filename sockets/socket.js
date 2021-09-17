@@ -6,14 +6,14 @@ var totems = [
     {
         "id":1,
         "socket_id":'',
-        "name":'',
-        "stream":false,
-        "state":false
+        "name":'totem1',
+        "stream":false,//nos indica que hizo una solicitud
+        "state":false//nos indica que el totem funciona
     },
     {
         "id":2,
         "socket_id":'',
-        "name":'',
+        "name":'totem2',
         "stream":false,
         "state":false
     }
@@ -82,15 +82,15 @@ io.on('connection', (client) => {
       
 
             for (const clave in totems) {
-                console.log('---------inicia----------------')
+                // console.log('---------inicia----------------')
                 
-                console.log("clave->",totems[clave])
-                console.log("---------------------------------");
+                // console.log("clave->",totems[clave])
+                // console.log("---------------------------------");
                 // console.log(io.to(totems[clave]).emit('connected'))
                 io.emit('response:activity',totems[clave]);
             }
 
       
-    }, 1000);
+    }, 10000);
 
 });
