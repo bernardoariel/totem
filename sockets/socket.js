@@ -16,6 +16,13 @@ var totems = [
         "name":'totem2',
         "stream":false,
         "state":false
+    },
+    {
+        "id":3,
+        "socket_id":'',
+        "name":'totem3',
+        "stream":false,
+        "state":false
     }
 ]
 
@@ -46,8 +53,6 @@ io.on('connection', (client) => {
             console.log('SERVE logged out disconnect', server)
         }
 
-        
-       
     });
     
     client.on('totem_register', (totem_name)=>{
@@ -110,16 +115,11 @@ io.on('connection', (client) => {
     })
 
     setInterval(() => {
-      
-
-            for (const clave in totems) {
-                // console.log('---------inicia----------------')
-                
-                // console.log("clave->",totems[clave])
-                // console.log("---------------------------------");
-                // console.log(io.to(totems[clave]).emit('connected'))
-                io.emit('response:activity',totems[clave]);
-            }
+        //compruebo los estados y envio a response:activity
+        for (const clave in totems) {
+            
+            io.emit('response:activity',totems);
+        }
 
       
     }, 10000);

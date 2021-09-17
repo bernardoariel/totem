@@ -24,7 +24,7 @@
         let messageText = document.getElementById('text-message')
         let reqUrl = document.getElementById('totem')
         var socket = io();
-        
+        alert(reqUrl.textContent)
         //cuando se conecta
         socket.on('connect', function(){
             console.log('Connected to the server :: myid=1>',socket.id)
@@ -38,7 +38,7 @@
                 stream:false,
                 message:'se conecto al servidor'
             }
-            console.log(datos)
+            // console.log(datos)
             socket.emit('totem_register', datos)
         });
         //cuando se desconecta
