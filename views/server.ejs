@@ -72,15 +72,89 @@
         var socket = io();
         const main_div = document.getElementById('main')
         //el cliente se conecta al servidor
+        function cargarVideo(data){
+          if(data.id!=socket.id){//aca revisamos que no sea //server
+
+var hoy = new Date()
+var fecha = hoy.getDate() + '-' + (hoy.getMonth()+1) + '-'+hoy.getFullYear();
+var hora =hoy.getHours()+':'+hoy.getMinutes()+':'+hoy.getSeconds();
+const {id,name,message} = data;
+
+//elimino la clase verde si existe
+if(document.getElementById("normal")){
+    document.getElementById("normal").remove();
+    document.body.style.backgroundColor = "#5cb85c";
+} 
+
+if(!document.getElementById("warning-state")){
+  
+  document.body.style.backgroundColor = '#f0f4f5';
+  let  div = document.createElement('div')
+  div.className ='justify-content-center';
+  div.id = 'warning-state'
+  main_div.appendChild(div)
+  videos = `
+  <div class='capa-video'>
+    
+    <div class="capa-video-footer" id="${name}">
+        <span><strong>${name}</strong></span>
+        <a href="#" onclick="solved('${name}')">Resolver</a>
+        
+        <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+    </div> 
+
+    <video preload="" playsinline="" autoplay="" muted="" loop="">
+        <source src="./../sos1.mp4" type="video/mp4">
+    </video>
+
+</div>
+  `
+  div.innerHTML = videos
+   
+}else{
+  
+  if(!document.getElementById(`${name}`)){
+
+    videosWarning = document.getElementById("warning-state")
+    let app = document.createElement("div"); // <div></div>
+    videosWarning.appendChild(app);  
+    app.className='capa-video'
+    videos = `                  
+   <div class="capa-video-footer" id="${name}">
+        <span><strong>${name}</strong></span>
+        <a href="#" onclick="solved('${name}')">Resolver</a>
+        
+        <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+    </div> 
+
+    <video preload="" playsinline="" autoplay="" muted="" loop="">
+        <source src="./../sos1.mp4" type="video/mp4">
+    </video>
+
+
+    `
+    app.innerHTML = videos;
+    
+  }
+  
+}
+
+}
+
+        }
         socket.on('connect', function(){
 
             console.log('Server Connected /server',socket.id)
             //envio la coneccion al server para que mde devuelva un array
-            socket.emit('totem_conectados');
+           
 
         });
+        socket.on('connected', function(){
+          socket.emit('totem_conectados');
+          socket.emit('socket:server',socket.id);
+        })
         socket.on('totem_conectados', function(datos){
-          console.log(datos)
+        
         })
         //el cliente se desconecta del servidor
         socket.on('disconnect', function(){
@@ -90,12 +164,15 @@
         // socket.on('message-from-client', function(payload){
         //   console.log(payload);
         // });
+        socket.on('response:activity:stream', function(datos){
+
+        })
         socket.on('response:activity', function(datos){
            console.log("NUEVO",datos)
 
             //recorro el array datos
             //bsq_totem = datos.find( totem => totem.name == 'totem1' )
-            
+            if(datos['stream']==true) cargarVideo(datos)
             
             for (let i = 1; i <= 2 ; i++) {
                 
@@ -122,81 +199,14 @@
               
             }
               
-            }
+          }
             
            
        
         });
         socket.on('sos:server', function(data){
           
-          
-          if(data.id!=socket.id){//aca revisamos que no sea //server
-
-            var hoy = new Date()
-            var fecha = hoy.getDate() + '-' + (hoy.getMonth()+1) + '-'+hoy.getFullYear();
-            var hora =hoy.getHours()+':'+hoy.getMinutes()+':'+hoy.getSeconds();
-            const {id,name,message} = data;
-            
-            //elimino la clase verde si existe
-            if(document.getElementById("normal")){
-                document.getElementById("normal").remove();
-                document.body.style.backgroundColor = "#5cb85c";
-            } 
-          
-            if(!document.getElementById("warning-state")){
-              
-              document.body.style.backgroundColor = '#f0f4f5';
-              let  div = document.createElement('div')
-              div.className ='justify-content-center';
-              div.id = 'warning-state'
-              main_div.appendChild(div)
-              videos = `
-              <div class='capa-video'>
-                
-                <div class="capa-video-footer" id="${name}">
-                    <span><strong>${name}</strong></span>
-                    <a href="#" onclick="solved('${name}')">Resolver</a>
-                    
-                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
-                </div> 
-
-                <video preload="" playsinline="" autoplay="" muted="" loop="">
-                    <source src="./../sos1.mp4" type="video/mp4">
-                </video>
-
-            </div>
-              `
-              div.innerHTML = videos
-               
-            }else{
-              
-              if(!document.getElementById(`${name}`)){
-
-                videosWarning = document.getElementById("warning-state")
-                let app = document.createElement("div"); // <div></div>
-                videosWarning.appendChild(app);  
-                app.className='capa-video'
-                videos = `                  
-               <div class="capa-video-footer" id="${name}">
-                    <span><strong>${name}</strong></span>
-                    <a href="#" onclick="solved('${name}')">Resolver</a>
-                    
-                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
-                </div> 
-
-                <video preload="" playsinline="" autoplay="" muted="" loop="">
-                    <source src="./../sos1.mp4" type="video/mp4">
-                </video>
-
-           
-                `
-                app.innerHTML = videos;
-                
-              }
-              
-            }
-
-          }
+          cargarVideo(data)
          
       })
       function solved(totem_name){

@@ -4,26 +4,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet">
-    <title>S.O.S</title>
+       <title>S.O.S</title>
     <link rel="shortcut icon" href="./../sos.png" type="image/x-icon">
 </head>
 <body class="p-3 mb-2 bg-light text-dark" >
 
     <div class="container">
-        <h2 class="display-6" id="totem" style="font-family: 'Nunito Sans', sans-serif;"><%= totem %></h2>
-        <textarea id="text-message" class="form-control" aria-describedby="" rows="3" placeholder="Ingrese el mensaje"></textarea>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 "> 
-            <button id="send-message-sos" class="btn btn-primary border">Enviar Mensaje</button>
-        </div>
-        </div>
+        
+        <h2 id="totem" style="font-family: 'Nunito Sans', sans-serif;"><%= totem %></h2>
+        <button id="btn_video" class=" ">Enviar Mensaje</button>
+        
+ 
     </div>
     
     <script src="socket.io/socket.io.js"></script>
-    <script>
+        <script>
         
-        let btn = document.querySelector('#send-message-sos')
+        let btn = document.querySelector('#btn_video')
         let messageText = document.getElementById('text-message')
         let reqUrl = document.getElementById('totem')
         var socket = io();
@@ -38,10 +35,10 @@
                 id:idarrayTotem,
                 socket_id:socket.id,
                 name:reqUrl.textContent,//pasar un alias
-                stream:true,
-                message:'Se inicio apertura de camara.'
+                stream:false,
+                message:'se conecto al servidor'
             }
-            // console.log(reqUrl.textContent.match(regex)[0])
+            console.log(datos)
             socket.emit('totem_register', datos)
         });
         //cuando se desconecta
@@ -52,14 +49,14 @@
 
         socket.on('solved2', function(totem_name){
             if(reqUrl.textContent==totem_name){
-
+                btn.innerHTML = "Enviar Mensaje"
                 alert("resuelto");
             }
         });
         socket.on('connected', function(){
             // console.log('recibe el totem ',reqUrl.textContent);
             socket.emit('totem:response',reqUrl.textContent)
-            // alert('a')
+             
         });
 
         socket.on('register_ok', function(){
@@ -68,23 +65,24 @@
             datos = {
                 id:reqUrl.textContent.match(regex),
                 name:reqUrl.textContent,//pasar un alias
-                message:'Se inicio apertura de camara.'
+                message:'Se conecto al servidor'
             }
             console.log(datos)
             //cuando se conecta un totem -> emite a view/server.ejs
-            socket.emit('sos:server',datos)
-            messageText.focus()
+            // socket.emit('sos:server',datos)
+            // messageText.focus()
         });
 
         btn.addEventListener('click', ()=>{
-            console.log(messageText.value)
+            
             payload = {
                 name:reqUrl.textContent,
-                message:messageText.value
+                message:'iniciamos video'
             }
 
             
-            socket.emit('message-from-client',payload)
+            socket.emit('sos:server',payload)
+            btn.innerHTML = "ESPERANDO ..."
         })
         
      

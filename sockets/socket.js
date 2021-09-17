@@ -19,6 +19,12 @@ var totems = [
     }
 ]
 
+var server = {
+    
+    "socket_id":'',
+    "name":'server',//nos indica que hizo una solicitud
+    "state":false//nos indica que el totem funciona
+}
 io.on('connection', (client) => {
 
     //cuando un cliente se conecta
@@ -34,8 +40,13 @@ io.on('connection', (client) => {
             bsq_totem.state=false;
             console.log('--------- desconectado -----',client.id)
             console.log(totems)
+        }else{
+            server['socket_id']=''
+            server['state']=false
+            console.log('SERVE logged out disconnect', server)
         }
 
+        
        
     });
     
@@ -48,8 +59,28 @@ io.on('connection', (client) => {
         console.log('LOG:SERVER:TOTEMS->',totems);
     })
 
-
+    client.on('socket:server', (data)=>{
+        //cargo
+        server['socket_id']=data
+        server['state']=true
+        console.log(server);
+        for (const clave in totems) {
+            // console.log('---------inicia----------------')
+            
+             console.log("clave->",totems[clave])
+            // console.log("---------------------------------");
+            // console.log(io.to(totems[clave]).emit('connected'))
+            io.emit('response:activity:stream',totems[clave]);
+        }
+    })
     client.on('sos:server', (data)=>{
+        console.log(data.name);
+        bsq_totem = totems.find( totem => totem.name === data.name )
+        if(bsq_totem){
+           
+            bsq_totem.stream=true;
+           
+        }
         io.emit('sos:server',data)
     })
 
