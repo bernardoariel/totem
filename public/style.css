@@ -154,29 +154,28 @@ aside .widget {
 
 height:30px;
 margin:10px;
-/*  */
-}
-.alerts{
-    text-align: center;
-    
-    width: 100%;
+
 }
 .alert_warning_totem{
-    margin-top: 8px!important;
-    margin-right: 15px!important;
     background: #FFFF00;
     color:#2c3e50;
-
 }
 .alert_success_totem{
-    margin-top: 8px!important;
-    margin-right: 15px!important;
     background: #004c42;
     color:#fff;
-   
+}
+aside .widget .imagen {
+text-align: center;
+ margin-top: 5px;
+ width: 100%;
+
 }
 
+aside .widget .imagen i{
+/* color: #FFF; */
+margin-right: 15px;
 
+}
 
 footer {
 background:#e9e9e9;
