@@ -104,32 +104,27 @@
         //recibo si estan activos los totem
         socket.on('server:activity', function(datos){
           
-          if(document.getElementById('connect')) document.getElementById('connect').remove();
-           for (const key in datos) {
-              const element = datos[key];
-              
-              document.getElementById(`alert_${element.name}`).className ='';
-              document.getElementById(`alert_${element.name}`).classList.add('widget');
-              if(element.state == true){
-
-                document.getElementById(`alert_${element.name}`).classList.add('alert_success_totem');
-
-              }else{
-
-                document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
-
-              }
-              
+          if(document.getElementById('connect')) document.getElementById('connect').remove();  
+          for (const key in datos) {
+            const element = datos[key];
             
-           }
+            document.getElementById(`alert_${element.name}`).className ='';
+            document.getElementById(`alert_${element.name}`).classList.add('widget');
+            if(element.state == true){
 
+              document.getElementById(`alert_${element.name}`).classList.add('alert_success_totem');
 
-            //recorro el array datos
-            //bsq_totem = datos.find( totem => totem.name == 'totem1' )
-            if(datos['stream']==true) cargarVideo(datos)
+            }else{
+
+              document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
+
+            }
             
           
-           
+          }
+
+          if(datos['stream']==true) cargarVideo(datos)
+          
        
         });
         //recibo los videos
@@ -197,15 +192,21 @@
  
         //creo los stados
         function crearStateTotem(data){
-
+          
           for (const key in data) {
-            const element = data[key];
+            const totem = data[key];
             verTotems = document.getElementById('state_totems')
+            let class_alert_totem
+            if(totem.state==true){
+              class_alert_totem ='alert_success_totem'
+            }else{
+              class_alert_totem ='alert_warning_totem'
+            }
             let app = document.createElement("div");
             verTotems.appendChild(app);  
             videos = `                  
-              <div class="widget" id="alert_totem${element.id}">
-                <div class="imagen"><span ><i class="far fa-check-square"></i>${element.name}</span></div>
+              <div class="widget ${class_alert_totem}" id="alert_totem${totem.id}">
+                <div class="imagen"><span ><i class="far fa-check-square"></i>${totem.name}</span></div>
               </div>`
             app.innerHTML = videos;
           }
