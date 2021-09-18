@@ -16,18 +16,10 @@ var totems = [
         "name":'totem2',
         "stream":false,
         "state":false
-    },
-    {
-        "id":3,
-        "socket_id":'',
-        "name":'totem3',
-        "stream":false,
-        "state":false
     }
 ]
 
 var server = {
-    
     "socket_id":'',
     "name":'server',//nos indica que hizo una solicitud
     "state":false//nos indica que el totem funciona
@@ -40,13 +32,12 @@ io.on('connection', (client) => {
     //cuando un cliente de desconecta
     client.on('disconnect', () => {
         console.log('Client logged out disconnect', client.id)
+
         bsq_totem = totems.find( totem => totem.socket_id === client.id )
         if(bsq_totem)   {
             bsq_totem.socket_id='';
             bsq_totem.stream=false;
             bsq_totem.state=false;
-            console.log('--------- desconectado -----',client.id)
-            console.log(totems)
         }else{
             server['socket_id']=''
             server['state']=false
@@ -54,74 +45,56 @@ io.on('connection', (client) => {
         }
 
     });
-    
-    client.on('totem_register', (totem_name)=>{
-        
+    //registro los totems que se conectan
+    client.on('socket:totem_register', (totem_name)=>{
         totems[totem_name.id]['socket_id']=totem_name.socket_id;
         totems[totem_name.id]['name']=totem_name.name;
         totems[totem_name.id]['state']=true;
-        client.emit('register_ok');
-        console.log('LOG:SERVER:TOTEMS->',totems);
+        // client.emit('totem:register_ok');
+        // console.log('LOG:SERVER:TOTEMS->',totems);
     })
-
+    //registro los datos del //server
     client.on('socket:server', (data)=>{
-        //cargo
+        //cargo los datos del servidor
         server['socket_id']=data
         server['state']=true
-        console.log(server);
-        for (const clave in totems) {
-            // console.log('---------inicia----------------')
-            
-             console.log("clave->",totems[clave])
-            // console.log("---------------------------------");
-            // console.log(io.to(totems[clave]).emit('connected'))
-            io.emit('response:activity:stream',totems[clave]);
-        }
+        
     })
-    client.on('sos:server', (data)=>{
+    //recibo el pedido de video 
+    client.on('socket:sos', (data)=>{
         console.log(data.name);
         bsq_totem = totems.find( totem => totem.name === data.name )
         if(bsq_totem){
-           
             bsq_totem.stream=true;
-           
         }
-        io.emit('sos:server',data)
+        //envio el video al servidor
+        io.emit('server:sos',data)
     })
-
-    client.on('solved', (totem_name)=>{
-        io.emit('solved2',totem_name)
+    //recibo 'RESUELTO del Server
+    client.on('socket:solved', (totem_name)=>{
+        //lo envio al cliente
+        io.emit('totem:solved',totem_name)
         bsq_totem = totems.find( totem => totem.name === totem_name )
         if(bsq_totem){
            
-            bsq_totem.stream=false;
+           bsq_totem.stream=false;
            
         }
         
     })
-    //creoo una funcion para recorrer los array conectados
-    
-    client.on('totem_conectados', ()=>{
-        console.log('totem_conectados');
-        io.emit('totem_conectados',totems)
+    //consulta de los totems desde el server
+    client.on('socket:totem_conectados', ()=>{
+        io.emit('server:totem_conectados',totems)
     })
-    client.on('totem:response', (data)=>{
-        console.log("activo",data);
-        // tomo el valor del totem name y le asigno el id de cliente
-        // totems[totem_name] = client.id;
-        //
-        //client.emit('register_ok');
-        // console.log(totems);
-    })
-
+  
+    //controlo los state cada cierto tiempo
     setInterval(() => {
         //compruebo los estados y envio a response:activity
         for (const clave in totems) {
             
-            io.emit('response:activity',totems);
+            io.emit('server:activity',totems);
         }
 
-      
     }, 10000);
 
 });

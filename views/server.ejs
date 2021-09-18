@@ -33,9 +33,8 @@
 </header>
 
 <section class="main" id="main">
-      <div id="normal" class="normal-state"></div>
-        
-
+  
+  <div id="normal" class="normal-state" style="color:#FFF;padding-top:50px"><span id="connect"><center>CONECTANDO .............</center></span></div>
 
 </section>
 
@@ -101,6 +100,7 @@ if(!document.getElementById("warning-state")){
     <video preload="" playsinline="" autoplay="" muted="" loop="">
         <source src="./../sos1.mp4" type="video/mp4">
     </video>
+    <audio src="./../sirena.mp3" autoplay></audio>
 
 </div>
   `
@@ -125,7 +125,8 @@ if(!document.getElementById("warning-state")){
     <video preload="" playsinline="" autoplay="" muted="" loop="">
         <source src="./../sos1.mp4" type="video/mp4">
     </video>
-
+    <audio src="./../sirena.mp3" autoplay></audio>
+  </div>
 
     `
     app.innerHTML = videos;
@@ -142,13 +143,17 @@ if(!document.getElementById("warning-state")){
           //se conecta el :/server al socket
           console.log('Server Connected /server',socket.id)
           //solicito la cantidad de totems
-          socket.emit('totem_conectados');
+          socket.emit('socket:totem_conectados');
+          //guardo los datos del server
+          socket.emit('socket:server',socket.id);
         });
-        socket.on('totem_conectados', function(datos){
-          console.log('totem_conectados',datos);
+        //recibo los totems conectados
+        socket.on('server:totem_conectados', function(datos){
+          console.log('server:totem_conectados',datos);
+          
           for (const key in datos) {
       
-              const element = datos[key];
+            const element = datos[key];
             if(element.stream==true){
                data = {
                     "id":element.id,
@@ -162,30 +167,19 @@ if(!document.getElementById("warning-state")){
           }
           crearStateTotem(datos)
         })
-        // socket.on('connected', function(){
-          
-          
-        //   socket.emit('socket:server',socket.id);
-        // })
-        
+       
         //el cliente se desconecta del servidor
         socket.on('disconnect', function(){
             console.log('Disconnected from the server', socket.id)
         });
-        //cuando el cliente envia un dato
-        // socket.on('message-from-client', function(payload){
-        //   console.log(payload);
-        // });
-        socket.on('response:activity:stream', function(datos){
-
-        })
-        
-        socket.on('response:activity', function(datos){
+       
+        //recibo si estan activos los totem
+        socket.on('server:activity', function(datos){
           
-           console.log("NUEVO",datos)
+          if(document.getElementById('connect')) document.getElementById('connect').remove();
            for (const key in datos) {
               const element = datos[key];
-              // console.log(element.name)
+              
               document.getElementById(`alert_${element.name}`).className ='';
               document.getElementById(`alert_${element.name}`).classList.add('widget');
               if(element.state == true){
@@ -197,7 +191,7 @@ if(!document.getElementById("warning-state")){
                 document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
 
               }
-              // cargarVideo(datos[key])
+              
             
            }
 
@@ -210,11 +204,13 @@ if(!document.getElementById("warning-state")){
            
        
         });
-        socket.on('sos:server', function(data){
+        //recibo los videos
+        socket.on('server:sos', function(data){
           console.log(data)
           cargarVideo(data)
          
         })
+      //creo los stados
       function crearStateTotem(data){
 
         for (const key in data) {
@@ -232,7 +228,7 @@ if(!document.getElementById("warning-state")){
       }
       function solved(totem_name){
         
-         socket.emit('solved',totem_name);
+         socket.emit('socket:solved',totem_name);
          setTimeout(() => {
           const totem = document.getElementById(totem_name)
           totem.parentElement.remove();
