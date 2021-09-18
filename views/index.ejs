@@ -48,6 +48,7 @@
         //recibo el ok del server
         socket.on('totem:solved', function(totem_name){
             if(reqUrl.textContent==totem_name){
+                
                 btn.innerHTML = "Enviar Mensaje"
                 alert("resuelto");
             }

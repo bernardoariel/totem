@@ -65,7 +65,7 @@
         var socket = io();
         const main_div = document.getElementById('main')
         
-        
+      
               
         socket.on('connect', function(){
           //se conecta el :/server al socket
@@ -108,22 +108,33 @@
           for (const key in datos) {
             const element = datos[key];
             
-            document.getElementById(`alert_${element.name}`).className ='';
-            document.getElementById(`alert_${element.name}`).classList.add('widget');
-            if(element.state == true){
+            if(document.getElementById(`alert_${element.name}`)){
+              document.getElementById(`alert_${element.name}`).className ='';
+              document.getElementById(`alert_${element.name}`).classList.add('widget');
+              if(element.state == true){
 
-              document.getElementById(`alert_${element.name}`).classList.add('alert_success_totem');
+                document.getElementById(`alert_${element.name}`).classList.add('alert_success_totem');
 
-            }else{
+              }else{
 
-              document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
+                document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
 
+              }
             }
-            
-          
+
+            if(element.stream ==false){
+              
+              if(document.getElementById(element.name)){
+                
+                const totem = document.getElementById(element.name)
+                totem.parentElement.remove();
+              }
+          }
+
           }
 
           if(datos['stream']==true) cargarVideo(datos)
+
           
        
         });
@@ -133,6 +144,7 @@
           cargarVideo(data)
          
         })
+        
         /**
          * 
          *    ===========  @funciones
@@ -152,63 +164,75 @@
                 document.getElementById("normal").remove();
                 document.body.style.backgroundColor = "#5cb85c";
             } 
+            if(!document.getElementById(`${name}`)){
+              //creo el div div_warning_state
+              if(!document.getElementById("warning-state")){
+                document.body.style.backgroundColor = '#f0f4f5';
+                let  div_warning_state = document.createElement('div')
+                div_warning_state.className ='justify-content-center';
+                div_warning_state.id = 'warning-state'
+                main_div.appendChild(div_warning_state)
+              }
             
-            //creo el div div_warning_state
-            if(!document.getElementById("warning-state")){
-              document.body.style.backgroundColor = '#f0f4f5';
-              let  div_warning_state = document.createElement('div')
-              div_warning_state.className ='justify-content-center';
-              div_warning_state.id = 'warning-state'
-              main_div.appendChild(div_warning_state)
-            }
-            
-            //tomo el div warning
-            let div_warning_state = document.getElementById('warning-state');
-            console.log(div_warning_state)
-            //creo un div capa-video
-            div_capa_video = document.createElement('div')
-            //le agrego la clase
-            div_capa_video.className ='capa-video';
-            //lo cargo en el dom
-            div_warning_state.appendChild(div_capa_video)
-            //
-            videos = `                  
-              <div class="capa-video-footer" id="${name}">
-                  <span><strong>${name}</strong></span>
-                  <a href="#" onclick="solved('${name}')">Resuelto</a>
-                  
-                  <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
-              </div> 
+              //tomo el div warning
+              let div_warning_state = document.getElementById('warning-state');
+              console.log(div_warning_state)
+              //creo un div capa-video
+              div_capa_video = document.createElement('div')
+              //le agrego la clase
+              div_capa_video.className ='capa-video';
+              //lo cargo en el dom
+              div_warning_state.appendChild(div_capa_video)
+              //
+              videos = `                  
+                <div class="capa-video-footer" id="${name}">
+                    <span><strong>${name}</strong></span>
+                    <a href="#" onclick="solved('${name}')">Resuelto</a>
+                    
+                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+                </div> 
 
-              <video preload="" playsinline="" autoplay="" muted="" loop="">
-                  <source src="./../sos1.mp4" type="video/mp4">
-              </video>
-              <audio src="./../sirena.mp3" autoplay></audio>`
-              div_capa_video.innerHTML = videos;
-
-          }
-
+                <video preload="" playsinline="" autoplay="" muted="" loop="">
+                    <source src="./../sos1.mp4" type="video/mp4">
+                </video>
+                <audio src="./../sirena.mp3" autoplay></audio>`
+                div_capa_video.innerHTML = videos;
+              }
+            }   
         }
  
         //creo los stados
         function crearStateTotem(data){
-          
+          console.log('entramos por los stados')
+          // creo la class de alerta
+          let class_alert_totem
+          //recorro los totems pedido de totem_conectados
           for (const key in data) {
+
             const totem = data[key];
             verTotems = document.getElementById('state_totems')
-            let class_alert_totem
+            
             if(totem.state==true){
+
               class_alert_totem ='alert_success_totem'
+
             }else{
+
               class_alert_totem ='alert_warning_totem'
+
             }
+
             let app = document.createElement("div");
             verTotems.appendChild(app);  
-            videos = `                  
-              <div class="widget ${class_alert_totem}" id="alert_totem${totem.id}">
-                <div class="imagen"><span ><i class="far fa-check-square"></i>${totem.name}</span></div>
-              </div>`
-            app.innerHTML = videos;
+            if(!document.getElementById(`alert_totem${totem.id}`)){
+
+              app.innerHTML = `                  
+                <div class="widget ${class_alert_totem}" id="alert_totem${totem.id}">
+                  <div class="imagen"><span ><i class="far fa-check-square"></i>${totem.name}</span></div>
+                </div>`;
+            }
+              
+            
           }
             
         }
@@ -217,8 +241,12 @@
           
           socket.emit('socket:solved',totem_name);
           setTimeout(() => {
-            const totem = document.getElementById(totem_name)
-            totem.parentElement.remove();
+            if(document.getElementById(totem_name)){
+
+              const totem = document.getElementById(totem_name)
+              totem.parentElement.remove();
+              
+            }
 
           }, 1000);
           

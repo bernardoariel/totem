@@ -2,7 +2,7 @@ const { Socket } = require('socket.io');
 const {io} = require('../index');
 
 //variables y array
-time_refresh = 100000;
+time_refresh = 1000;
 var totems = [
     {
         "id":1,
@@ -41,6 +41,9 @@ io.on('connection', (client) => {
             // bsq_totem.stream=false;
             bsq_totem.state=false;
         }else{
+            //si server 'socketid' tiene valor
+            //cierro esa pestaña del navegador a partir del socketid
+            // y tomo los valores nuevos
             server['socket_id']=''
             server['state']=false
             console.log('SERVE logged out disconnect', server)
@@ -56,11 +59,17 @@ io.on('connection', (client) => {
         // console.log('LOG:SERVER:TOTEMS->',totems);
     })
     //registro los datos del //server
-    client.on('socket:server', (data)=>{
-        //cargo los datos del servidor
-        server['socket_id']=data
-        server['state']=true
-        
+    client.on('socket:server', (id_server)=>{
+        /* if(server['socket_id'].length > 0 && id_server == server['socket_id']){
+            //elimino el server anterior
+            io.emit('server:die',id_server)
+        } */
+
+            //cargo los datos del servidor
+            server['socket_id']=id_server
+            server['state']=true
+
+        console.log({server})
     })
     //recibo el pedido de video 
     client.on('socket:sos', (data)=>{
@@ -76,6 +85,7 @@ io.on('connection', (client) => {
     client.on('socket:solved', (totem_name)=>{
         //lo envio al cliente
         io.emit('totem:solved',totem_name)
+        
         bsq_totem = totems.find( totem => totem.name === totem_name )
         if(bsq_totem){
            
