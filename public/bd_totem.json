@@ -1,0 +1,16 @@
+[
+    {
+        "id":1,
+        "socket_id":"",
+        "name":"totem1",
+        "stream":false,
+        "state":false
+    },
+    {
+        "id":2,
+        "socket_id":"",
+        "name":"totem2",
+        "stream":false,
+        "state":false
+    }
+]

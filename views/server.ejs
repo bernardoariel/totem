@@ -63,82 +63,9 @@
 
     <script>
         var socket = io();
-        const main_div = document.getElementById('main')
-        //el cliente se conecta al servidor
+        const div_main = document.getElementById('main')
         
-        function cargarVideo(data){
-          if(data.id!=socket.id){//aca revisamos que no sea //server
-
-var hoy = new Date()
-var fecha = hoy.getDate() + '-' + (hoy.getMonth()+1) + '-'+hoy.getFullYear();
-var hora =hoy.getHours()+':'+hoy.getMinutes()+':'+hoy.getSeconds();
-const {id,name,message} = data;
-
-//elimino la clase verde si existe
-if(document.getElementById("normal")){
-    document.getElementById("normal").remove();
-    document.body.style.backgroundColor = "#5cb85c";
-} 
-
-if(!document.getElementById("warning-state")){
-  
-  document.body.style.backgroundColor = '#f0f4f5';
-  let  div = document.createElement('div')
-  div.className ='justify-content-center';
-  div.id = 'warning-state'
-  main_div.appendChild(div)
-  videos = `
-  <div class='capa-video'>
-    
-    <div class="capa-video-footer" id="${name}">
-        <span><strong>${name}</strong></span>
-        <a href="#" onclick="solved('${name}')">Resuelto</a>
-        
-        <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
-    </div> 
-
-    <video preload="" playsinline="" autoplay="" muted="" loop="">
-        <source src="./../sos1.mp4" type="video/mp4">
-    </video>
-    <audio src="./../sirena.mp3" autoplay></audio>
-
-</div>
-  `
-  div.innerHTML = videos
-   
-}else{
-  
-  if(!document.getElementById(`${name}`)){
-
-    videosWarning = document.getElementById("warning-state")
-    let app = document.createElement("div"); // <div></div>
-    videosWarning.appendChild(app);  
-    app.className='capa-video'
-    videos = `                  
-   <div class="capa-video-footer" id="${name}">
-        <span><strong>${name}</strong></span>
-        <a href="#" onclick="solved('${name}')">Resuelto</a>
-        
-        <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
-    </div> 
-
-    <video preload="" playsinline="" autoplay="" muted="" loop="">
-        <source src="./../sos1.mp4" type="video/mp4">
-    </video>
-    <audio src="./../sirena.mp3" autoplay></audio>
-  </div>
-
-    `
-    app.innerHTML = videos;
-    
-  }
-  
-}
-
-}
-
-        }
-        
+       
         socket.on('connect', function(){
           //se conecta el :/server al socket
           console.log('Server Connected /server',socket.id)
@@ -150,9 +77,7 @@ if(!document.getElementById("warning-state")){
         //recibo los totems conectados
         socket.on('server:totem_conectados', function(datos){
           console.log('server:totem_conectados',datos);
-          
           for (const key in datos) {
-      
             const element = datos[key];
             if(element.stream==true){
                data = {
@@ -167,23 +92,20 @@ if(!document.getElementById("warning-state")){
           }
           crearStateTotem(datos)
         })
-       
         //el cliente se desconecta del servidor
         socket.on('disconnect', function(){
             console.log('Disconnected from the server', socket.id)
         });
-       
         //recibo si estan activos los totem
         socket.on('server:activity', function(datos){
-          
           if(document.getElementById('connect')) document.getElementById('connect').remove();
            for (const key in datos) {
               const element = datos[key];
-              
               document.getElementById(`alert_${element.name}`).className ='';
               document.getElementById(`alert_${element.name}`).classList.add('widget');
+              document.getElementById(`alert_${element.name}`).classList.add('alerts');
               if(element.state == true){
-
+                
                 document.getElementById(`alert_${element.name}`).classList.add('alert_success_totem');
 
               }else{
@@ -191,18 +113,12 @@ if(!document.getElementById("warning-state")){
                 document.getElementById(`alert_${element.name}`).classList.add('alert_warning_totem');
 
               }
-              
-            
+
            }
-
-
             //recorro el array datos
             //bsq_totem = datos.find( totem => totem.name == 'totem1' )
             if(datos['stream']==true) cargarVideo(datos)
-            
-          
-           
-       
+
         });
         //recibo los videos
         socket.on('server:sos', function(data){
@@ -210,66 +126,119 @@ if(!document.getElementById("warning-state")){
           cargarVideo(data)
          
         })
-      //creo los stados
-      function crearStateTotem(data){
 
-        for (const key in data) {
-          const element = data[key];
-          verTotems = document.getElementById('state_totems')
-          let app = document.createElement("div");
-          verTotems.appendChild(app);  
-          videos = `                  
-            <div class="widget" id="alert_totem${element.id}">
-              <div class="imagen"><span ><i class="far fa-check-square"></i>${element.name}</span></div>
-            </div>`
-          app.innerHTML = videos;
+
+        /***
+         * 
+         * ==========================FUNCIONES=======================
+         * 
+         * */
+        function cargarVideo(data){
+
+          if(data.id!=socket.id){//aca revisamos que no sea //server
+
+            var hoy = new Date()
+            var fecha = hoy.getDate() + '-' + (hoy.getMonth()+1) + '-'+hoy.getFullYear();
+            var hora =hoy.getHours()+':'+hoy.getMinutes()+':'+hoy.getSeconds();
+            const {id,name,message} = data;
+
+            //elimino la clase verde si existe
+            if(document.getElementById("normal")){
+                document.getElementById("normal").remove();
+                document.body.style.backgroundColor = "#5cb85c";
+            }
+            let div_warning_content
+            //creo la clase warning contenedora
+            if(!document.getElementById("warning-state")){
+              const  div_warning = document.createElement('div')
+              document.body.style.backgroundColor = '#f0f4f5';
+              div_warning.className ='justify-content-center';
+              div_warning.id = 'warning-state'
+              div_main.appendChild(div_warning)
+            }
+
+            div_warning_content = document.getElementById('warning-state')
+            const  div_capa_video = document.createElement('div')
+            div_capa_video.className ='capa-video';
+            div_warning_content.appendChild(div_capa_video)
+            console.log(div_warning_content)
+            videos = `
+                <div class="capa-video-footer" id="${name}">
+                    <span><strong>${name}</strong></span>
+                    <a href="#" onclick="solved('${name}')">Resuelto</a>
+                    
+                    <span>INICIADO: <strong>${fecha} ${hora}</strong></span>
+                </div> 
+
+                <video preload="" playsinline="" autoplay="" muted="" loop="">
+                    <source src="./../sos1.mp4" type="video/mp4">
+                </video>
+                <audio src="./../sirena.mp3" autoplay></audio>
+            `
+            div_capa_video.innerHTML = videos
+            
+          }
+
+          }
+
+        //creo los stados
+        function crearStateTotem(data){
+
+          for (const key in data) {
+            const element = data[key];
+            verTotems = document.getElementById('state_totems')
+            let app = document.createElement("div");
+            verTotems.appendChild(app);  
+            videos = `                  
+              <div class="widget alerts" id="alert_totem${element.id}">
+                <span ><i class="far fa-check-square"></i>${element.name}</span>
+              </div>`
+            app.innerHTML = videos;
+          }
+            
         }
+        function solved(totem_name){
           
-      }
-      function solved(totem_name){
-        
-         socket.emit('socket:solved',totem_name);
-         setTimeout(() => {
-          const totem = document.getElementById(totem_name)
-          totem.parentElement.remove();
+          socket.emit('socket:solved',totem_name);
+          setTimeout(() => {
+            const totem = document.getElementById(totem_name)
+            totem.parentElement.remove();
 
-         }, 1000);
-        
+          }, 1000);
+          
+        }
+
+        function startTime() {
+          var today = new Date();
+          var hr = today.getHours();
+          var min = today.getMinutes();
+          var sec = today.getSeconds();
+          ap = (hr < 12) ? "<span>AM</span>" : "<span>PM</span>";
+          hr = (hr == 0) ? 12 : hr;
+          hr = (hr > 12) ? hr - 12 : hr;
+          //Add a zero in front of numbers<10
+          hr = checkTime(hr);
+          min = checkTime(min);
+          sec = checkTime(sec);
+          
+          var months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+          var days = ['Domingo', 'Lunes', 'Marzo', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+          var curWeekDay = days[today.getDay()];
+          var curDay = today.getDate();
+          var curMonth = months[today.getMonth()];
+          var curYear = today.getFullYear();
+          var date = curWeekDay+", "+curDay+" "+curMonth+" "+curYear;
+          // document.getElementById("date").innerHTML = date;
+          
+          document.getElementById("reloj").innerHTML = date + " " + hr + ":" + min + ":" + sec + " " + ap;
+          var time = setTimeout(function(){ startTime() }, 500);
       }
-      
-    </script>
-    <script>
-      function startTime() {
-         var today = new Date();
-         var hr = today.getHours();
-         var min = today.getMinutes();
-         var sec = today.getSeconds();
-         ap = (hr < 12) ? "<span>AM</span>" : "<span>PM</span>";
-         hr = (hr == 0) ? 12 : hr;
-         hr = (hr > 12) ? hr - 12 : hr;
-         //Add a zero in front of numbers<10
-         hr = checkTime(hr);
-         min = checkTime(min);
-         sec = checkTime(sec);
-         
-         var months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-         var days = ['Domingo', 'Lunes', 'Marzo', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-         var curWeekDay = days[today.getDay()];
-         var curDay = today.getDate();
-         var curMonth = months[today.getMonth()];
-         var curYear = today.getFullYear();
-         var date = curWeekDay+", "+curDay+" "+curMonth+" "+curYear;
-         // document.getElementById("date").innerHTML = date;
-         
-         document.getElementById("reloj").innerHTML = date + " " + hr + ":" + min + ":" + sec + " " + ap;
-         var time = setTimeout(function(){ startTime() }, 500);
-     }
-     function checkTime(i) {
-         if (i < 10) {
-             i = "0" + i;
-         }
-         return i;
-     }
+      function checkTime(i) {
+          if (i < 10) {
+              i = "0" + i;
+          }
+          return i;
+      }
      </script>
         
 </body>

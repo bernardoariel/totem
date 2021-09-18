@@ -1,7 +1,8 @@
 const { Socket } = require('socket.io');
 const {io} = require('../index');
-// Sockets messages 
-
+//tiempo de refresco de estado de los totems
+var refresh_totems = 100000; 
+//totems
 var totems = [
     {
         "id":1,
@@ -18,25 +19,22 @@ var totems = [
         "state":false
     }
 ]
-
+//datos server
 var server = {
     "socket_id":'',
     "name":'server',//nos indica que hizo una solicitud
     "state":false//nos indica que el totem funciona
 }
 io.on('connection', (client) => {
-
     //cuando un cliente se conecta
     console.log('Client logged in', client.id);
-    
     //cuando un cliente de desconecta
     client.on('disconnect', () => {
         console.log('Client logged out disconnect', client.id)
-
         bsq_totem = totems.find( totem => totem.socket_id === client.id )
         if(bsq_totem)   {
             bsq_totem.socket_id='';
-            bsq_totem.stream=false;
+            // bsq_totem.stream=false;
             bsq_totem.state=false;
         }else{
             server['socket_id']=''
@@ -58,7 +56,6 @@ io.on('connection', (client) => {
         //cargo los datos del servidor
         server['socket_id']=data
         server['state']=true
-        
     })
     //recibo el pedido de video 
     client.on('socket:sos', (data)=>{
@@ -76,25 +73,19 @@ io.on('connection', (client) => {
         io.emit('totem:solved',totem_name)
         bsq_totem = totems.find( totem => totem.name === totem_name )
         if(bsq_totem){
-           
            bsq_totem.stream=false;
-           
         }
-        
     })
     //consulta de los totems desde el server
     client.on('socket:totem_conectados', ()=>{
         io.emit('server:totem_conectados',totems)
     })
-  
     //controlo los state cada cierto tiempo
     setInterval(() => {
         //compruebo los estados y envio a response:activity
         for (const clave in totems) {
-            
             io.emit('server:activity',totems);
         }
-
-    }, 10000);
+    }, refresh_totems);
 
 });

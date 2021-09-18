@@ -14,7 +14,6 @@
         <h2 id="totem" style="font-family: 'Nunito Sans', sans-serif;"><%= totem %></h2>
         <button id="btn_video" class=" ">Enviar Mensaje</button>
         
- 
     </div>
     
     <script src="socket.io/socket.io.js"></script>
@@ -52,16 +51,14 @@
                 alert("resuelto");
             }
         });
-        /
+      
 
         btn.addEventListener('click', ()=>{
-            
-            payload = {
+            data = {
                 name:reqUrl.textContent,
                 message:'iniciamos video'
             }
-
-            socket.emit('socket:sos',payload)
+            socket.emit('socket:sos',data)
             btn.innerHTML = "ESPERANDO ..."
         })
         
