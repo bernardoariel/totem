@@ -2,21 +2,31 @@ const { Socket } = require('socket.io');
 const {io} = require('../index');
 
 //variables y array
-time_refresh = 1000;
+time_refresh = 1000000;
 var totems = [
     {
         "id":1,
         "socket_id":'',
         "name":'totem1',
         "stream":false,//nos indica que hizo una solicitud
-        "state":false//nos indica que el totem funciona
+        "state":false,//nos indica que el totem funciona
+        "nameTotem":'t1',
+        "adressTotem":'junin 444',
+        "camaraIpTotem":'66.0.151.1',
+        "cameraPressetNro":'nro1',
+        "emergencyNumber":'1009'
     },
     {
         "id":2,
         "socket_id":'',
         "name":'totem2',
         "stream":false,
-        "state":false
+        "state":false,
+        "nameTotem":'t2',
+        "adressTotem":'las heras',
+        "camaraIpTotem":'4000.',
+        "cameraPressetNro":'nr3',
+        "emergencyNumber":'1006'
     }
 ]
 
@@ -98,7 +108,21 @@ io.on('connection', (client) => {
     client.on('socket:totem_conectados', ()=>{
         io.emit('server:totem_conectados',totems)
     })
-  
+    //consulta de los totems desde el server
+    client.on('socket:config', (datos)=>{
+        console.log('socket:config',datos)
+        bsq_totem = totems.find( totem => totem.name === datos.name)
+        console.log("bsq_totem",bsq_totem)
+        if(bsq_totem)   {
+
+            bsq_totem['nameTotem']=datos.nameTotem
+            bsq_totem['adressTotem']=datos.adressTotem
+            bsq_totem['camaraIpTotem']=datos.camaraIpTotem
+            bsq_totem['cameraPressetNro']=datos.cameraPressetNro
+            bsq_totem['emergencyNumber']=datos.emergencyNumber
+            console.log('SOCKET:CONFIGURADO EL TOTEM',bsq_totem)
+        }
+    })
     //controlo los state cada cierto tiempo
     setInterval(() => {
         //compruebo los estados y envio a response:activity
@@ -106,7 +130,7 @@ io.on('connection', (client) => {
             
             io.emit('server:activity',totems);
         }
-
+        console.log('server:activity')
     }, time_refresh);
 
 });
