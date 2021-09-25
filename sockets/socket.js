@@ -2,7 +2,7 @@ const { Socket } = require('socket.io');
 const {io} = require('../index');
 
 //variables y array
-time_refresh = 1000000;
+time_refresh = 1000;
 var totems = [
     {
         "id":1,
